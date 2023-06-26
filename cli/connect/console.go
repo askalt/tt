@@ -199,6 +199,9 @@ func getExecutor(console *Console) prompt.Executor {
 				log.Debug(err.Error())
 			}
 		}
+		if err := console.prompt.PushToHistory(strings.TrimSpace(console.input)); err != nil {
+			log.Debugf(err.Error())
+		}
 
 		var results []string
 		args := []interface{}{console.input}
@@ -210,7 +213,8 @@ func getExecutor(console *Console) prompt.Executor {
 					return
 				}
 
-				fmt.Printf("%s\n", encodedData)
+				console.prompt.PrintInfo(fmt.Sprintln(encodedData))
+				//fmt.Println(encodedData)
 			},
 			ResData: &results,
 		}
@@ -233,7 +237,8 @@ func getExecutor(console *Console) prompt.Executor {
 			data = results[0]
 		}
 
-		fmt.Printf("%s\n", data)
+		console.prompt.PrintInfo(fmt.Sprintln(data))
+		//fmt.Println(data)
 
 		console.input = ""
 		console.livePrefixEnabled = false
@@ -357,6 +362,9 @@ func getPromptOptions(console *Console) []prompt.Option {
 				},
 			},
 		),
+
+		prompt.OptionNoHistoryPushes(),
+		prompt.OptionReverseSearch(),
 	}
 
 	if console.history != nil {
